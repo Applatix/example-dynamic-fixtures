@@ -1,10 +1,3 @@
-# Dynamic Fixtures Example
-
-This repository contains example code and service templates which utilizes Applatix's dynamic fixtures feature.
-
-Dynamic fixtures can be used in `workflow` service templates and are defined by adding a `fixtures:` section in the service template. Dynamic fixtures reference other `container` service templates through the `template:` field. 
-
-```
 ---
 type: service_template
 subtype: workflow
@@ -33,13 +26,6 @@ steps:
         redis_ip: "%%fixtures.redisdb.ip%%"
         mongodb_ip: "%%fixtures.mongodb.ip%%"
 
-```
-
-During execution of the `example-dynamic-fixtures` workflow, two database container instances, MongoDB and Redis, will be launched for the duration of the workflow. The IP address of the containers can be referenced via the `%%fixtures.<fixture_name>.ip%%` attribute of the fixtures.
-
-In this example, the Redis IP address and MongoDB IP are passed as input parameters to the `python-dbtest` service template, which the test can use to perform its tests.
-
-```
 ---
 type: service_template
 subtype: container
@@ -60,6 +46,25 @@ inputs:
   artifacts:
   - from: "%%service.checkout.code%%"
     path: "/src"
-```
 
-Upon completion of the workflow, dynamic fixtures are automatically terminated.
+---
+type: service_template
+subtype: container
+name: mongodb
+description: MongoDB container
+container:
+  image: mongo:3.2.9
+  resources:
+    mem_mib: 256
+    cpu_cores: 0.1
+
+---
+type: service_template
+subtype: container
+name: redis
+description: Redis container
+container:
+  image: redis:3.0.5
+  resources:
+    mem_mib: 256
+    cpu_cores: 0.1
