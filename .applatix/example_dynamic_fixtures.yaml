@@ -22,7 +22,7 @@ steps:
   - test:
       template: python-dbtest
       parameters:
-        checkout: "%%steps.checkout%%"
+        code: "%%steps.checkout.code%%"
         redis_ip: "%%fixtures.redisdb.ip%%"
         mongodb_ip: "%%fixtures.mongodb.ip%%"
 
@@ -39,12 +39,12 @@ container:
   command: sh -c "pip install -r /src/requirements.txt && /src/dbtest.py --redis %%redis_ip%% --mongodb %%mongodb_ip%% --iterations %%iterations%%"
 inputs:
   parameters:
-    checkout:
+    code:
     redis_ip:
     mongodb_ip:
     iterations:
   artifacts:
-  - from: "%%service.checkout.code%%"
+  - from: "%%code%%"
     path: "/src"
 
 ---
