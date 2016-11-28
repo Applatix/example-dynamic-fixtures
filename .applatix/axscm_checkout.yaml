@@ -19,3 +19,31 @@ outputs:
   artifacts:
     code:
       path: "/src"
+
+---
+type: policy
+name: axscm-checkout-policy
+description: For demo
+template: axscm-checkout
+notifications:
+  -
+    when:
+      - on_start
+      - on_success
+      - on_failure
+    whom:
+      - committer
+      - author
+when:
+  -
+    event: on_push
+    target_branches:
+      - ".*"
+  -
+    event: on_pull_request
+    target_branches:
+      - ".*"
+  -
+    event: on_pull_request_merge
+    target_branches:
+      - ".*"
