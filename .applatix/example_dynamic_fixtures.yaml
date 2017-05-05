@@ -1,6 +1,5 @@
 ---
-type: service_template
-subtype: workflow
+type: workflow
 name: example-dynamic-fixtures
 description: Clone the Applatix/example-dynamic-fixtures repo and run perf tests against database fixtures
 fixtures:
@@ -27,8 +26,7 @@ steps:
         mongodb_ip: "%%fixtures.mongodb.ip%%"
 
 ---
-type: service_template
-subtype: container
+type: container
 name: python-dbtest
 description: Run key/value insertion & retrieval tests against MongoDB and Redis
 container:
@@ -48,8 +46,7 @@ inputs:
     path: "/src"
 
 ---
-type: service_template
-subtype: container
+type: container
 name: mongodb
 description: MongoDB container
 container:
@@ -59,8 +56,7 @@ container:
     cpu_cores: 0.1
 
 ---
-type: service_template
-subtype: container
+type: container
 name: redis
 description: Redis container
 container:
