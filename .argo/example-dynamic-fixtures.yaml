@@ -1,0 +1,90 @@
+---
+type: workflow
+version: 1
+name: example-dynamic-fixtures
+description: Clone the Applatix/example-dynamic-fixtures repo and run perf tests against database fixtures
+inputs:
+  parameters:
+    COMMIT:
+      default: "%%session.commit%%"
+    REPO:
+      default: "%%session.repo%%"
+    ITERATIONS:
+      default: 100000
+fixtures:
+- mongodb:
+    template: mongodb
+  redisdb:
+    template: redis
+steps:
+  - CHECKOUT:
+      template: argo-checkout
+  - TEST:
+      template: python-dbtest
+      arguments:
+        artifacts.CODE: "%%steps.CHECKOUT.outputs.artifacts.CODE%%"
+        parameters.REDIS_IP: "%%fixtures.redisdb.ip%%"
+        parameters.MONGODB_IP: "%%fixtures.mongodb.ip%%"
+
+---
+type: container
+version: 1
+name: python-dbtest
+description: Run key/value insertion & retrieval tests against MongoDB and Redis
+inputs:
+  parameters:
+    REDIS_IP:
+    MONGODB_IP:
+    ITERATIONS:
+  artifacts:
+    CODE:
+      path: "/src"
+image: python:3.5.2
+command: ["sh", "-c"]
+args: ["pip install -r /src/requirements.txt && 
+        /src/dbtest.py --redis %%inputs.parameters.REDIS_IP%% --mongodb %%inputs.parameters.MONGODB_IP%% --iterations %%inputs.parameters.ITERATIONS%%"]
+resources:
+  mem_mib: 256
+  cpu_cores: 0.1
+
+---
+type: container
+version: 1
+name: mongodb
+description: MongoDB container
+image: mongo:3.2.9
+resources:
+  mem_mib: 256
+  cpu_cores: 0.1
+
+---
+type: container
+version: 1
+name: redis
+description: Redis container
+image: redis:3.0.5
+resources:
+  mem_mib: 256
+  cpu_cores: 0.1
+
+---
+type: container
+version: 1
+name: argo-checkout
+description: Checks out a source repository to /src
+inputs:
+  parameters:
+    COMMIT:
+      default: "%%session.commit%%"
+    REPO:
+      default: "%%session.repo%%"
+image: argoproj/argoscm:v2.0
+command: ["axscm"]
+args: ["clone", "%%inputs.parameters.REPO%%", "/src", "--commit", "%%inputs.parameters.COMMIT%%"]
+resources:
+  mem_mib: 256
+  cpu_cores: 0.1
+outputs:
+  artifacts:
+    CODE:
+      path: /src
